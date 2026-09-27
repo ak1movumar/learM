@@ -11,7 +11,7 @@ import { Badge, Card, Skeleton } from '@/components/ui/surface';
 import { LinkButton } from '@/components/ui/link-button';
 import { ErrorState, EmptyState } from '@/components/ui/states';
 
-import styles from './landing.module.scss';
+import styles from './catalog-preview.module.scss';
 
 const LANGUAGE_FLAGS: Record<string, string> = {
   en: '/flags/gb.png',
@@ -86,8 +86,8 @@ export function CatalogPreview() {
                     <Image
                       src={getLanguageFlag(language.code)!}
                       alt={`${language.name} flag`}
-                      width={36}
-                      height={26}
+                      width={84}
+                      height={64}
                     />
                   ) : (
                     <span>🌐</span>

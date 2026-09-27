@@ -1,0 +1,112 @@
+.headerBar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  width: 100%;
+  background: var(--color-header-bg);
+  backdrop-filter: blur(12px);
+
+  transition:
+    transform 0.3s ease-in-out,
+    opacity 0.3s ease-in-out;
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.headerBarHidden {
+  transform: translateY(-100%); /* Прячет хедер полностью вверх за экран */
+  opacity: 0; /* Делает невидимым для мягкости эффекта */
+  pointer-events: none; /* Чтобы нельзя было случайно кликнуть по скрытым ссылкам */
+}
+
+.header {
+  width: min(calc(100% - 4rem), 84rem);
+  min-height: 80px;
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+.desktopNav {
+  display: flex;
+  gap: 4rem;
+  a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--color-muted);
+    font-size: 1.18rem;
+    transition: color var(--transition-fast);
+    &:hover {
+      color: var(--color-primary);
+    }
+  }
+}
+.headerActions {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  > a {
+    font-size: 0.75rem;
+  }
+}
+.menuButton {
+  display: none;
+}
+.mobileMenu {
+  display: grid;
+  gap: 1rem;
+}
+.mobileMenu > a:not([class]) {
+  padding: 0.5rem;
+  min-height: 44px;
+}
+.mobileMenu > div:first-child {
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+@media (max-width: 75rem) {
+  .desktopNav {
+    gap: 1rem;
+  }
+  .headerActions > a {
+    padding-inline: 0.8rem;
+  }
+}
+@media (max-width: 64rem) {
+  .desktopNav {
+    display: none;
+  }
+  .desktopPreferences {
+    display: none;
+  }
+  .menuButton {
+    display: block;
+  }
+  .header {
+    width: calc(100% - 3rem);
+  }
+}
+@media (max-width: 48rem) {
+  .header {
+    width: calc(100% - 2.5rem);
+    min-height: 80px;
+    gap: 0.5rem;
+  }
+  .headerStart {
+    display: none !important;
+  }
+  .headerActions {
+    gap: 0;
+  }
+  .headerLogin {
+    padding-inline: 0.7rem !important;
+  }
+}
+@media (max-width: 23rem) {
+  .headerLogin {
+    display: none;
+  }
+}

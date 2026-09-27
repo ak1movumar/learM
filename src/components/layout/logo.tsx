@@ -1,37 +1,37 @@
 import Link from 'next/link';
 import styles from './layout.module.scss';
 
-
 export function Logo({ compact = false }: { compact?: boolean }) {
   return (
     <Link href="/" aria-label="LearM" className={styles.logo}>
       <svg
-        width="34"
-        height="38"
-        viewBox="0 0 34 38"
+        xmlns="http://www.w3.org/2000/svg"
+        width={compact ? 42 : 58}
+        height={compact ? 42 : 58}
+        viewBox="0 0 64 64"
         fill="none"
-        aria-hidden="true"
       >
-        <rect
-          x="0"
-          y="5"
-          width="13"
-          height="25"
-          rx="6.5"
-          transform="rotate(-25 0 5)"
-          fill="currentColor"
-          opacity=".65"
-        />
         <path
-          d="M19 6c3-5 11-3 11 3 0 6-9 19-16 25 0-10 1-22 5-28Z"
-          fill="currentColor"
+          d="M14 20 32 13l18 7-18 7-18-7Z"
+          fill="#25c998"
+        />
+
+        <path
+          d="M20 27v12c0 5 5 9 12 9s12-4 12-9V27l-12 5-12-5Z"
+          fill="#25c998"
+          opacity="0.85"
+        />
+
+        <path
+          d="M27 40V28l5 7 5-7v12"
+          className={styles.logoM}
+          strokeWidth="3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
       </svg>
-      {!compact && (
-        <span>
-          Lear<span className={styles.logoM}>M</span>
-        </span>
-      )}
+
+      {!compact && <span className={styles.logoText}>LearM</span>}
     </Link>
   );
 }

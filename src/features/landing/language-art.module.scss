@@ -1,0 +1,121 @@
+.art {
+  position: relative;
+  min-width: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 530px;
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--color-hero-surface);
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(90deg, transparent 70%, var(--color-hero-surface)),
+      linear-gradient(0deg, var(--color-hero-surface), transparent 15%);
+  }
+}
+.heroImage {
+  object-fit: cover;
+  object-position: 48% center;
+}
+.lightImage {
+  display: block;
+}
+.darkImage {
+  display: none;
+}
+:global(html[data-theme='dark']) {
+  .lightImage {
+    display: none;
+  }
+  .darkImage {
+    display: block;
+  }
+}
+.greetingOne,
+.greetingTwo,
+.greetingThree {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  gap: 0.1rem;
+  padding: 0.7rem 1rem;
+  border: 1px solid rgb(255 255 255 / 35%);
+  border-radius: 1rem 1rem 1rem 0.25rem;
+  background: #f3fbff;
+  color: #17313d;
+  font-weight: 750;
+  font-size: 1rem;
+  box-shadow: 0 8px 25px rgb(3 26 39 / 15%);
+  transform: rotate(-8deg);
+  small {
+    font-size: 0.6rem;
+    font-weight: 500;
+    opacity: 0.75;
+  }
+}
+.greetingOne {
+  left: 8%;
+  top: 13%;
+}
+.greetingTwo {
+  right: 8%;
+  top: 36%;
+  background: #a8efd5;
+  transform: rotate(8deg);
+}
+.greetingThree {
+  right: 16%;
+  top: 4%;
+  background: #e0d4fa;
+  transform: rotate(6deg);
+}
+.compactArt {
+  height: 300px;
+  min-height: 300px;
+  border-radius: 1.5rem;
+  margin-top: 1.5rem;
+  .heroImage {
+    object-position: center 35%;
+  }
+}
+
+@media (max-width: 64rem) {
+  .greetingThree {
+    right: 5%;
+  }
+}
+@media (max-width: 48rem) {
+  .art {
+    max-width: none;
+    width: 100%;
+    height: 370px;
+    min-height: 370px;
+    transform: none;
+    margin: 0;
+  }
+  .heroImage {
+    object-fit: cover;
+    object-position: center 38%;
+  }
+  .greetingOne {
+    top: auto;
+    bottom: 21%;
+    left: 5%;
+  }
+  .greetingTwo {
+    top: 42%;
+    right: 6%;
+  }
+  .greetingThree {
+    top: 4%;
+    right: 9%;
+  }
+  .compactArt {
+    min-height: 260px;
+    height: 260px;
+  }
+}

@@ -28,18 +28,32 @@
 .logo {
   display: inline-flex;
   align-items: center;
-  gap: 0.7rem;
-  color: var(--color-primary);
+  gap: 0.15rem;
+
   flex-shrink: 0;
-  > span {
-    color: var(--color-text);
-    font-size: 1.65rem;
-    font-weight: 750;
-    letter-spacing: -0.065em;
-  }
-  .logoM {
-    color: #1685da;
-  }
+  text-decoration: none;
+}
+
+.logoText {
+  color: var(--color-text);
+
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1;
+
+  letter-spacing: -0.06em;
+}
+
+.logoM {
+  stroke: #0f6b55;
+}
+
+:global(html[data-theme='dark']) .logoM {
+  stroke: #0f172a;
+}
+
+:global(html[data-theme='dark']) .logoText {
+  color: #ffffff;
 }
 .navigation {
   display: grid;

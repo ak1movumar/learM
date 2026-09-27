@@ -18,6 +18,9 @@ import { PublicHeader } from './public-header';
 import { LanguageArt } from './language-art';
 import { CatalogPreview } from './catalog-preview';
 import { LearningExperience, ProgressPreview } from './experience';
+import { WaveDivider } from './wave-divider';
+import { Reveal } from './reveal';
+import { ScrollToTopButton } from './scroll-to-top-button';
 import styles from './landing.module.scss';
 export function LandingPage() {
   const {
@@ -37,9 +40,9 @@ export function LandingPage() {
   ];
   return (
     <div className={styles.page}>
+      <PublicHeader />
       <main id="main-content">
         <div className={styles.heroFrame}>
-          <PublicHeader />
           <section className={styles.hero}>
             <LanguageArt />
             <div className={styles.heroCopy}>
@@ -94,94 +97,113 @@ export function LandingPage() {
             </span>
             <p>{t.journeyLabel}</p>
           </div>
+          <WaveDivider />
         </div>
         <section id="features" className={styles.section}>
-          <div className={styles.centerHeading}>
-            <p className={styles.eyebrow}>{t.features}</p>
-            <h2>{t.benefitsTitle}</h2>
-          </div>
-          <div className={styles.benefits}>
-            {benefits.map(({ Icon, title, body }, index) => (
-              <Card key={title}>
-                <div className={styles.benefitIcon} data-tone={index}>
-                  <Icon size={24} />
-                </div>
-                <h3>{title}</h3>
-                <p>{body}</p>
-              </Card>
-            ))}
-          </div>
+          <Reveal>
+            <div className={styles.centerHeading}>
+              <p className={styles.eyebrow}>{t.features}</p>
+              <h2>{t.benefitsTitle}</h2>
+            </div>
+          </Reveal>
+          <Reveal delay={100}>
+            <div className={styles.benefits}>
+              {benefits.map(({ Icon, title, body }, index) => (
+                <Card key={title}>
+                  <div className={styles.benefitIcon} data-tone={index}>
+                    <Icon size={24} />
+                  </div>
+                  <h3>{title}</h3>
+                  <p>{body}</p>
+                </Card>
+              ))}
+            </div>
+          </Reveal>
         </section>
         <CatalogPreview />
         <section className={styles.section}>
-          <div className={styles.centerHeading}>
-            <p className={styles.eyebrow}>{t.howLabel}</p>
-            <h2>{t.howTitle}</h2>
-          </div>
-          <div className={styles.steps}>
-            {steps.map((step, index) => (
-              <div key={step.title}>
-                <span>{String(index + 1).padStart(2, '0')}</span>
-                <h3>{step.title}</h3>
-                <p>{step.body}</p>
+          <Reveal>
+            <div className={styles.centerHeading}>
+              <p className={styles.eyebrow}>{t.howLabel}</p>
+              <h2>{t.howTitle}</h2>
+            </div>
+          </Reveal>
+          <Reveal delay={100}>
+            <div className={styles.steps}>
+              {steps.map((step, index) => (
+                <div key={step.title}>
+                  <span>{String(index + 1).padStart(2, '0')}</span>
+                  <h3>{step.title}</h3>
+                  <p>{step.body}</p>
+                </div>
+              ))}
+            </div>
+          </Reveal>
+        </section>
+        <Reveal>
+          <LearningExperience />
+        </Reveal>
+        <Reveal>
+          <ProgressPreview />
+        </Reveal>
+        <Reveal>
+          <section id="community" className={styles.community}>
+            <div className={styles.communityArt} aria-hidden="true">
+              <span>Hola!</span>
+              <span>Салам!</span>
+              <span>Hello!</span>
+              <div>
+                <MessageCircle size={66} strokeWidth={1} />
               </div>
-            ))}
-          </div>
-        </section>
-        <LearningExperience />
-        <ProgressPreview />
-        <section id="community" className={styles.community}>
-          <div className={styles.communityArt} aria-hidden="true">
-            <span>Hola!</span>
-            <span>Салам!</span>
-            <span>Hello!</span>
-            <div>
-              <MessageCircle size={66} strokeWidth={1} />
+              <i />
+              <b />
             </div>
-            <i />
-            <b />
-          </div>
-          <div>
-            <p className={styles.eyebrow}>{t.communityLabel}</p>
-            <a href="#about" className={styles.creatorCredit}>
-              <CommunityBadge />
-              <span>{community.made}</span>
-            </a>
-            <h2>{t.communityTitle}</h2>
-            <p>{t.communityBody}</p>
-            <LinkButton href="/register">
-              {t.join}
-              <ArrowRight size={17} />
-            </LinkButton>
-            <small>{t.communityNote}</small>
-          </div>
-        </section>
-        <section id="about" className={styles.about}>
-          <p className={styles.eyebrow}>{t.about}</p>
-          <h2>{t.aboutTitle}</h2>
-          <p>{t.aboutBody}</p>
-          <div className={styles.creatorCard}>
-            <CommunityBadge />
             <div>
-              <p className={styles.eyebrow}>{community.made}</p>
-              <h3>{community.title}</h3>
-              <p>{community.body}</p>
-              <LinkButton href="#community" variant="secondary">
-                {community.link}
-                <ArrowUpRight size={17} />
+              <p className={styles.eyebrow}>{t.communityLabel}</p>
+              <a href="#about" className={styles.creatorCredit}>
+                <CommunityBadge />
+                <span>{community.made}</span>
+              </a>
+              <h2>{t.communityTitle}</h2>
+              <p>{t.communityBody}</p>
+              <LinkButton href="/register">
+                {t.join}
+                <ArrowRight size={17} />
               </LinkButton>
+              <small>{t.communityNote}</small>
             </div>
-          </div>
-        </section>
-        <section className={styles.cta}>
-          <Sparkles size={26} />
-          <h2>{t.ctaTitle}</h2>
-          <p>{t.ctaBody}</p>
-          <LinkButton href="/register">
-            {t.start}
-            <ArrowRight size={18} />
-          </LinkButton>
-        </section>
+          </section>
+        </Reveal>
+        <Reveal>
+          <section id="about" className={styles.about}>
+            <p className={styles.eyebrow}>{t.about}</p>
+            <h2>{t.aboutTitle}</h2>
+            <p>{t.aboutBody}</p>
+            <div className={styles.creatorCard}>
+              <CommunityBadge />
+              <div>
+                <p className={styles.eyebrow}>{community.made}</p>
+                <h3>{community.title}</h3>
+                <p>{community.body}</p>
+                <LinkButton href="#community" variant="secondary">
+                  {community.link}
+                  <ArrowUpRight size={17} />
+                </LinkButton>
+              </div>
+            </div>
+          </section>
+        </Reveal>
+        <Reveal>
+          <section className={styles.cta}>
+            <Sparkles size={26} />
+            <h2>{t.ctaTitle}</h2>
+            <p>{t.ctaBody}</p>
+            <LinkButton href="/register">
+              {t.start}
+              <ArrowRight size={18} />
+            </LinkButton>
+          </section>
+        </Reveal>
       </main>
       <footer className={styles.footer}>
         <div className={styles.footerBrand}>
@@ -205,6 +227,7 @@ export function LandingPage() {
           </a>
         </div>
       </footer>
+      <ScrollToTopButton />
     </div>
   );
 }

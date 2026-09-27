@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import { cn } from '@/lib/cn';
-import styles from './landing.module.scss';
+import styles from './language-art.module.scss';
 
 export function LanguageArt({ compact = false }: { compact?: boolean }) {
   return (

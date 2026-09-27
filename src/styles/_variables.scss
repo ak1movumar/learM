@@ -53,6 +53,7 @@ html[data-theme='light'] {
 
   --color-bg: #f5f8f7;
   --color-hero-surface: #fff;
+  --color-header-bg: rgba(255, 255, 255, 0.8);
   --color-surface: #fff;
   --color-surface-raised: #fff;
   --color-subtle: #edf3f1;
@@ -100,6 +101,7 @@ html[data-theme='dark'] {
   color-scheme: dark;
 
   --color-bg: #091720;
+  --color-header-bg: #0b1d29;
   --color-hero-surface: #0b1d29;
   --color-surface: #10232e;
   --color-surface-raised: #19323d;

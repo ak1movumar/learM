@@ -4,7 +4,7 @@ import { BookOpen, Check, CheckCircle2, Sparkles, Trophy } from 'lucide-react';
 import { useI18n } from '@/providers/i18n-provider';
 import { Card } from '@/components/ui/surface';
 import { Button } from '@/components/ui/button';
-import styles from './landing.module.scss';
+import styles from './experience.module.scss';
 export function LearningExperience() {
   const {
     messages: { landing: t },
