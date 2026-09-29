@@ -134,3 +134,9 @@
     flex-direction: column;
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .progress span {
+    transition: none;
+  }
+}

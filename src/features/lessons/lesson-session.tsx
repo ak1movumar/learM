@@ -14,7 +14,9 @@ import { useProgress } from '@/features/learning/queries';
 import { progressByLesson } from '@/features/progress/model';
 import { LearningError } from '@/features/learning/data-state';
 import { useLessonAttempt } from './use-lesson-attempt';
-import { TextExercise } from './text-exercise';
+import { practiceFeedback, practiceCopy } from './practice-feedback';
+import { LessonQuestion } from './lesson-question';
+import { ExerciseInput } from './exercise-input';
 import type { Exercise, Lesson } from './contracts';
 import styles from './lesson.module.scss';
 export function LessonSession({
@@ -26,6 +28,7 @@ export function LessonSession({
 }) {
   const {
     messages: { learning: t },
+    locale,
   } = useI18n();
   const router = useRouter();
 
@@ -38,6 +41,12 @@ export function LessonSession({
     answer,
     finished,
     correct,
+    canAdvance,
+    lastStep,
+    showAnswer,
+    mistakes,
+    reviewing,
+    reveal,
     completed,
     dirty,
     mutation,
@@ -49,6 +58,8 @@ export function LessonSession({
   } = useLessonAttempt(lesson, exercises, () => {
     void progress.refetch();
   });
+  const feedback = item ? practiceFeedback(item) : null;
+  const copy = practiceCopy[locale];
   return (
     <main id="main-content" className={styles.workspace}>
       <header className={styles.header}>
@@ -80,8 +91,8 @@ export function LessonSession({
       {finished ? (
         <Card className={styles.complete}>
           <CheckCircle2 size={48} />
-          <h1>{t.lessonDone}</h1>
-          <p>{t.lessonDoneHint}</p>
+          <h1>{copy.done}</h1>
+          <p>{copy.doneHint}</p>
           {progress.isError ? (
             <LearningError onRetry={() => void progress.refetch()} />
           ) : (
@@ -121,26 +132,33 @@ export function LessonSession({
           }
         />
       ) : (
-        <section className={styles.exercise} aria-labelledby="exercise-title">
+        <section
+          key={index}
+          className={styles.exercise}
+          aria-labelledby="exercise-title"
+        >
           <div className={styles.kicker}>
             <Badge tone="primary">{t[item.type]}</Badge>
             <span>
               {t.exercise} {index + 1} {t.of} {items.length}
             </span>
           </div>
-          <h1 id="exercise-title">{item.question}</h1>
+          {reviewing && <p role="status">{copy.review}</p>}
+          <LessonQuestion item={item} />
           {supported ? (
             <form
               onSubmit={(event) => {
                 event.preventDefault();
-                if (correct) advance();
+                if (canAdvance) advance();
                 else submit();
               }}
             >
-              <TextExercise
+              <ExerciseInput
+                key={index}
+                task={item}
                 answer={answer}
                 onChange={changeAnswer}
-                disabled={mutation.isPending || correct}
+                disabled={mutation.isPending || canAdvance}
               />
               {mutation.isError && (
                 <p role="alert" className={styles.error}>
@@ -158,10 +176,34 @@ export function LessonSession({
                   </span>
                 </div>
               )}
+              {mistakes === 1 && !showAnswer && !correct && (
+                <div role="status">
+                  <p>{copy.hint}</p>
+                  {feedback && <p>{feedback.explanation}</p>}
+                </div>
+              )}
+              {(showAnswer || (correct && feedback)) && (
+                <div role="status" className={styles.correct}>
+                  {feedback ? (
+                    <div>
+                      {showAnswer && (
+                        <p>
+                          <strong>
+                            {copy.answer}: {feedback.answer}
+                          </strong>
+                        </p>
+                      )}
+                      <p>{feedback.explanation}</p>
+                    </div>
+                  ) : showAnswer ? (
+                    <p>{copy.missing}</p>
+                  ) : null}
+                </div>
+              )}
               <footer className={styles.controls}>
-                {correct ? (
+                {canAdvance ? (
                   <Button type="submit" size="lg">
-                    {index + 1 === items.length ? t.finish : t.nextExercise}
+                    {lastStep ? t.finish : t.nextExercise}
                     <ArrowRight size={18} />
                   </Button>
                 ) : (
@@ -179,6 +221,16 @@ export function LessonSession({
                     ) : (
                       t.check
                     )}
+                  </Button>
+                )}
+                {!canAdvance && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    disabled={mutation.isPending}
+                    onClick={reveal}
+                  >
+                    {copy.unknown}
                   </Button>
                 )}
               </footer>

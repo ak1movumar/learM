@@ -148,3 +148,47 @@
     transition: none;
   }
 }
+
+@keyframes pairEnter {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.choice,
+.tile {
+  min-height: 4.25rem;
+  transition:
+    transform 140ms ease,
+    background 140ms ease,
+    border-color 140ms ease;
+}
+.choice:has(input:enabled):active,
+.tile:enabled:active {
+  transform: scale(0.985);
+}
+.choice:has(input:checked) .number {
+  color: var(--color-primary);
+  border-color: currentColor;
+}
+.tile[data-paired='true'] {
+  opacity: 1;
+  background: var(--color-primary-soft);
+  border-color: var(--color-primary);
+}
+.pairs li {
+  animation: pairEnter 180ms ease-out both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .choice,
+  .tile {
+    transition: none;
+  }
+  .pairs li {
+    animation: none;
+  }
+}

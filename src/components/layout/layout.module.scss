@@ -74,9 +74,9 @@
 .navLink {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
+  gap: 0.75rem;
   min-height: 49px;
-  padding: 0.7rem 0.85rem;
+  padding: 0.5rem 0.6rem;
   color: var(--color-muted);
   border-radius: var(--radius-md);
   font-size: 0.875rem;
@@ -102,6 +102,46 @@
   font-weight: 600;
   box-shadow: inset 3px 0 0 var(--color-primary);
 }
+
+/* Цветная плитка с иконкой, как .benefitIcon на лендинге */
+.navIcon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: 0.75rem;
+  background: var(--color-primary);
+  color: #fff;
+  transition: transform var(--transition-fast);
+  svg {
+    filter: drop-shadow(0 1px 2px rgb(0 0 0 / 18%));
+  }
+}
+.navLink[data-tone='1'] .navIcon {
+  background: var(--color-info);
+}
+.navLink[data-tone='2'] .navIcon {
+  background: var(--color-warning);
+}
+.navActive .navIcon {
+  box-shadow: 0 8px 18px -6px
+    color-mix(in srgb, var(--color-primary) 60%, transparent);
+}
+.navActive[data-tone='1'] .navIcon {
+  box-shadow: 0 8px 18px -6px
+    color-mix(in srgb, var(--color-info) 60%, transparent);
+}
+.navActive[data-tone='2'] .navIcon {
+  box-shadow: 0 8px 18px -6px
+    color-mix(in srgb, var(--color-warning) 60%, transparent);
+}
+@media (hover: hover) {
+  .navLink:hover .navIcon {
+    transform: scale(1.08) rotate(-3deg);
+  }
+}
+
 .sidebarBottom {
   margin-top: auto;
   padding-top: 2rem;
@@ -138,7 +178,7 @@
     margin-bottom: 1rem;
   }
   .groupLabel,
-  .navLink span,
+  .navLabel,
   .navLink i,
   .preferences,
   .user div {
@@ -290,9 +330,32 @@
       max-width: 100%;
     }
   }
+  .bottomIcon {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 0.7rem;
+    background: var(--color-primary);
+    color: #fff;
+    transition: transform var(--transition-fast);
+    svg {
+      filter: drop-shadow(0 1px 2px rgb(0 0 0 / 18%));
+    }
+  }
+  .bottomLink[data-tone='1'] .bottomIcon {
+    background: var(--color-info);
+  }
+  .bottomLink[data-tone='2'] .bottomIcon {
+    background: var(--color-warning);
+  }
   .bottomActive {
-    color: var(--color-primary);
-    background: var(--color-primary-soft);
+    background: transparent;
+    color: var(--color-text);
+    font-weight: 600;
+    .bottomIcon {
+      transform: scale(1.08) rotate(-3deg);
+    }
   }
 }
 @media (max-width: 23rem) {

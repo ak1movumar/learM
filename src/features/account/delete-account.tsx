@@ -12,6 +12,7 @@ import { useI18n } from '@/providers/i18n-provider';
 import { sessionStore } from '@/features/auth/session';
 import { deleteAccount } from './api';
 import { accountError } from './errors';
+import { getApiFailure } from '@/services/api/errors';
 export function DeleteAccount() {
   const {
     messages: { account: t },
@@ -63,7 +64,15 @@ export function DeleteAccount() {
         description={t.deleteBody}
         confirmLabel={t.deleteAccount}
         loading={mutation.isPending}
-        error={mutation.isError ? accountError(mutation.error, t) : undefined}
+        error={
+          mutation.isError
+            ? accountError(mutation.error, t) +
+              ' · DELETE /users/me' +
+              (getApiFailure(mutation.error).status
+                ? ' · HTTP ' + getApiFailure(mutation.error).status
+                : '')
+            : undefined
+        }
       />
     </>
   );

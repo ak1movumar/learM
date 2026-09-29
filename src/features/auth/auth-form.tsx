@@ -17,6 +17,10 @@ import { authErrorMessage } from './errors';
 import { safeAuthRedirect } from './redirect';
 import type { LoginInput, RegisterInput } from './contracts';
 import styles from './auth.module.scss';
+import {
+  beginOnboarding,
+  needsOnboarding,
+} from '@/features/onboarding/storage';
 export function LoginForm({
   next,
   registered = false,
@@ -47,7 +51,10 @@ export function LoginForm({
     },
   });
   useEffect(() => {
-    if (auth.user?.is_active) router.replace(safeAuthRedirect(next));
+    if (auth.user?.is_active)
+      router.replace(
+        needsOnboarding(auth.user.id) ? '/onboarding' : safeAuthRedirect(next),
+      );
   }, [auth.user, next, router]);
   return (
     <form
@@ -113,8 +120,22 @@ export function RegisterForm() {
     defaultValues: { email: '', username: '', password: '' },
   });
   const mutation = useMutation({
-    mutationFn: register,
-    onSuccess: () => router.replace('/login?registered=1'),
+    mutationFn: async (values: RegisterInput) => {
+      const user = await register(values);
+      beginOnboarding(user.id);
+      // Registration has succeeded even if the following sign-in request fails.
+      try {
+        return await login({ email: values.email, password: values.password });
+      } catch {
+        return null;
+      }
+    },
+    onSuccess: (tokens) => {
+      if (tokens) {
+        sessionStore.signIn(tokens.access_token, tokens.refresh_token);
+        router.replace('/onboarding');
+      } else router.replace('/login?registered=1&next=%2Fonboarding');
+    },
   });
   return (
     <form

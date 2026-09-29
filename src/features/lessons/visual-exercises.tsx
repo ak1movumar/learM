@@ -69,11 +69,14 @@ export function MatchExercise({
               key={option.id}
               className={styles.tile}
               aria-pressed={selected === option.id}
-              disabled={disabled || !!pairs[option.id]}
+              data-paired={Object.hasOwn(pairs, option.id)}
+              disabled={disabled || Object.hasOwn(pairs, option.id)}
               onClick={() => onSelect(option.id)}
             >
               {option.text}
-              {pairs[option.id] && <Check size={18} aria-hidden="true" />}
+              {Object.hasOwn(pairs, option.id) && (
+                <Check size={18} aria-hidden="true" />
+              )}
             </button>
           ))}
         </div>
@@ -83,6 +86,7 @@ export function MatchExercise({
               type="button"
               key={option.id}
               className={styles.tile}
+              data-paired={Object.values(pairs).includes(option.id)}
               disabled={
                 disabled ||
                 !selected ||

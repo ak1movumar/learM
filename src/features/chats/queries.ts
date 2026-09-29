@@ -9,11 +9,13 @@ import * as api from './api';
 import { applyMessageAcknowledgement, type Message } from './contracts';
 import { sessionStore } from '@/features/auth/session';
 import { sessionDrafts, messageDraftKey } from '@/lib/session-drafts';
+import { liveChatOptions } from './live-options';
 export const chatsOptions = () =>
   queryOptions({
     queryKey: queryKeys.chats,
     queryFn: ({ signal }) => api.getChats(signal),
-    refetchInterval: 20000,
+    ...liveChatOptions,
+    refetchInterval: 5000,
   });
 export const chatOptions = (id: string) =>
   queryOptions({
@@ -30,7 +32,8 @@ export const messagesOptions = (id: string, active = false) =>
   queryOptions({
     queryKey: queryKeys.messages(id),
     queryFn: ({ signal }) => api.getMessages(id, signal),
-    refetchInterval: active ? 5000 : 20000,
+    ...liveChatOptions,
+    refetchInterval: active ? 2000 : 5000,
   });
 export const reactionsOptions = (chat: string, id: string) =>
   queryOptions({
@@ -89,8 +92,10 @@ export function useMessageAction(chat: string) {
           queryKey: queryKeys.reactions(chat, action.id),
         });
     },
-    onSettled: () => {
+    onSettled: (_data, _error, action) => {
       void client.invalidateQueries({ queryKey: queryKeys.messages(chat) });
+      if (action.type !== 'read')
+        void client.invalidateQueries({ queryKey: queryKeys.chats });
     },
   });
 }

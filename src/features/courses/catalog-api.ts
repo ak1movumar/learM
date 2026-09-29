@@ -16,12 +16,22 @@ export const languageSchema = z.object({
   is_active: z.boolean(),
 }) satisfies z.ZodType<components['schemas']['LanguageResponse']>;
 export async function getCourses(signal?: AbortSignal) {
-  const response = await publicApi.get<unknown>('/courses', { signal });
-  return z.array(courseSchema).parse(response.data);
+  const [response, languages] = await Promise.all([
+    publicApi.get<unknown>('/courses', { signal }),
+    getLanguages(signal),
+  ]);
+  const active = new Set(languages.map((language) => language.id));
+  return z
+    .array(courseSchema)
+    .parse(response.data)
+    .filter((course) => active.has(course.language_id));
 }
 export async function getLanguages(signal?: AbortSignal) {
   const response = await publicApi.get<unknown>('/languages', { signal });
-  return z.array(languageSchema).parse(response.data);
+  return z
+    .array(languageSchema)
+    .parse(response.data)
+    .filter((language) => language.is_active);
 }
 
 export async function getCourse(id: number, signal?: AbortSignal) {

@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { ArrowUpRight, BookOpen } from 'lucide-react';
-import Image from 'next/image';
+import { LanguageFlag } from '@/components/ui/language-flag';
 import { useI18n } from '@/providers/i18n-provider';
 import { getCourses, getLanguages } from '@/features/courses/catalog-api';
 import { queryKeys } from '@/constants/query-keys';
@@ -12,29 +12,6 @@ import { LinkButton } from '@/components/ui/link-button';
 import { ErrorState, EmptyState } from '@/components/ui/states';
 
 import styles from './catalog-preview.module.scss';
-
-const LANGUAGE_FLAGS: Record<string, string> = {
-  en: '/flags/gb.png',
-  'en-us': '/flags/us.svg',
-  'en-gb': '/flags/gb.svg',
-
-  ky: '/flags/kg.svg',
-  ru: '/flags/ru.svg',
-
-  es: '/flags/es.svg',
-  fr: '/flags/fr.svg',
-  de: '/flags/de.svg',
-
-  ko: '/flags/kr.svg',
-  ja: '/flags/jp.svg',
-  zh: '/flags/cn.svg',
-
-  tr: '/flags/tr.svg',
-};
-
-function getLanguageFlag(code: string) {
-  return LANGUAGE_FLAGS[code.toLowerCase()] ?? null;
-}
 
 export function CatalogPreview() {
   const {
@@ -82,16 +59,7 @@ export function CatalogPreview() {
             activeLanguages.map((language) => (
               <a href="#courses" key={language.id}>
                 <span className={styles.languageFlag}>
-                  {getLanguageFlag(language.code) ? (
-                    <Image
-                      src={getLanguageFlag(language.code)!}
-                      alt={`${language.name} flag`}
-                      width={84}
-                      height={64}
-                    />
-                  ) : (
-                    <span>🌐</span>
-                  )}
+                  <LanguageFlag code={language.code} width={84} height={64} />
                 </span>
 
                 <span className={styles.languageName}>{language.name}</span>
@@ -154,16 +122,11 @@ export function CatalogPreview() {
                     <span className={styles.courseIcon}>
                       {language ? (
                         <span className={styles.courseFlag}>
-                          {getLanguageFlag(language.code) ? (
-                            <Image
-                              src={getLanguageFlag(language.code)!}
-                              alt={`${language.name} flag`}
-                              width={38}
-                              height={28}
-                            />
-                          ) : (
-                            <span>🌐</span>
-                          )}
+                          <LanguageFlag
+                            code={language.code}
+                            width={38}
+                            height={28}
+                          />
                         </span>
                       ) : (
                         <BookOpen size={25} />
@@ -181,14 +144,11 @@ export function CatalogPreview() {
 
                   {language && (
                     <small className={styles.courseLanguage}>
-                      {getLanguageFlag(language.code) && (
-                        <Image
-                          src={getLanguageFlag(language.code)!}
-                          alt=""
-                          width={22}
-                          height={16}
-                        />
-                      )}
+                      <LanguageFlag
+                        code={language.code}
+                        width={22}
+                        height={16}
+                      />
 
                       {language.name}
                     </small>

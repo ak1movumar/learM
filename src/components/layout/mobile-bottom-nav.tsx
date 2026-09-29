@@ -4,6 +4,9 @@ import { useI18n } from '@/providers/i18n-provider';
 import { cn } from '@/lib/cn';
 import { mobileKeys, navigation, type NavigationKey } from './navigation';
 import styles from './layout.module.scss';
+
+const tones: Record<string, number> = { learning: 0, connect: 1, account: 2 };
+
 export function MobileBottomNav({
   active,
   onNavigate,
@@ -23,6 +26,7 @@ export function MobileBottomNav({
           <Link
             key={key}
             href={item.href}
+            data-tone={tones[item.group] ?? 0}
             aria-current={!onNavigate && active === key ? 'page' : undefined}
             className={cn(
               styles.bottomLink,
@@ -35,7 +39,9 @@ export function MobileBottomNav({
               }
             }}
           >
-            <Icon size={21} />
+            <i className={styles.bottomIcon} aria-hidden="true">
+              <Icon size={20} strokeWidth={1.75} />
+            </i>
             <span>{nav[key]}</span>
           </Link>
         );

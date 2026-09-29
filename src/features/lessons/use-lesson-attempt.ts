@@ -3,10 +3,12 @@ import { useEffect, useRef, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/constants/query-keys';
 import { submitExercise } from './api';
+import { canAdvancePractice, needsPracticeReview } from './practice-state';
 import {
   buildExerciseSubmission,
-  canSubmitText,
-  exerciseCapabilities,
+  canSubmitAnswer,
+  exerciseInput,
+  type Answer,
 } from './exercise-adapter';
 import type { Exercise, Lesson } from './contracts';
 
@@ -24,10 +26,14 @@ export function useLessonAttempt(
   onFinish: () => void,
 ) {
   const queryClient = useQueryClient();
-  const [items] = useState(() => [...exercises]);
+  const [items, setItems] = useState(() => [...exercises]);
   const [index, setIndex] = useState(0);
-  const [answer, setAnswer] = useState('');
+  const [answer, setAnswer] = useState<Answer>('');
   const [finished, setFinished] = useState(false);
+  const [mistakes, setMistakes] = useState(0);
+  const [revealed, setRevealed] = useState(false);
+  const missed = useRef(new Set<number>());
+  const reviewed = useRef(new Set<number>());
   const sending = useRef(false);
   const mutation = useMutation({
     mutationFn: ({
@@ -35,20 +41,29 @@ export function useLessonAttempt(
       draft,
     }: {
       exercise: Exercise;
-      draft: string;
+      draft: Answer;
     }) => {
       const submission = buildExerciseSubmission(exercise, draft);
       return submitExercise(exercise.id, submission.answer);
     },
     retry: false,
+    onSuccess: (result, variables) => {
+      if (!result.correct) {
+        missed.current.add(variables.exercise.id);
+        setMistakes((count) => count + 1);
+      }
+    },
     onSettled: () => {
       sending.current = false;
     },
   });
   const item = items[index];
   const correct = mutation.data?.correct === true;
-  const completed = index + (correct ? 1 : 0);
-  const dirty = !finished && (!!answer || index > 0 || mutation.isPending);
+  const canAdvance = canAdvancePractice(correct, revealed, mistakes);
+  const completed = index + (canAdvance ? 1 : 0);
+  const dirty =
+    !finished &&
+    (!!answer || index > 0 || revealed || mistakes > 0 || mutation.isPending);
 
   useEffect(() => {
     if (!dirty) return;
@@ -61,8 +76,17 @@ export function useLessonAttempt(
   }, [dirty]);
 
   const advance = () => {
-    if (!correct || finished) return;
-    if (shouldCompleteLesson(index, items.length, correct)) {
+    if (!item || !canAdvance || finished || sending.current) return;
+    const repeat = needsPracticeReview(
+      item.id,
+      missed.current,
+      reviewed.current,
+    );
+    if (repeat) {
+      reviewed.current.add(item.id);
+      setItems((current) => [...current, item]);
+    }
+    if (!repeat && shouldCompleteLesson(index, items.length, canAdvance)) {
       setFinished(true);
       void Promise.all([
         queryClient.invalidateQueries({ queryKey: ['learning-path'] }),
@@ -79,14 +103,16 @@ export function useLessonAttempt(
     }
     setIndex(index + 1);
     setAnswer('');
+    setMistakes(0);
+    setRevealed(false);
     mutation.reset();
   };
   const submit = () => {
     if (
       !item ||
-      !canSubmitText(item, answer) ||
+      !canSubmitAnswer(item, answer) ||
       mutation.isPending ||
-      correct ||
+      canAdvance ||
       sending.current ||
       finished
     )
@@ -94,8 +120,8 @@ export function useLessonAttempt(
     sending.current = true;
     mutation.mutate({ exercise: item, draft: answer });
   };
-  const changeAnswer = (value: string) => {
-    if (mutation.isPending || correct || finished) return;
+  const changeAnswer = (value: Answer) => {
+    if (mutation.isPending || canAdvance || finished) return;
     setAnswer(value);
     if (mutation.data || mutation.isError) mutation.reset();
   };
@@ -106,17 +132,29 @@ export function useLessonAttempt(
     answer,
     finished,
     correct,
+    canAdvance,
+    lastStep:
+      index === items.length - 1 &&
+      (index >= exercises.length || (mistakes === 0 && !revealed)),
+    showAnswer: revealed || mistakes >= 2,
+    mistakes,
+    reviewing: index >= exercises.length,
+    reveal: () => {
+      if (!item || sending.current || canAdvance || finished) return;
+      missed.current.add(item.id);
+      setRevealed(true);
+    },
     completed,
     dirty,
     mutation,
     advance,
     submit,
     changeAnswer,
-    supported: !!item && exerciseCapabilities[item.type].input === 'text',
+    supported: !!item && !!exerciseInput(item),
     canSubmit:
-      canSubmitText(item, answer) &&
+      canSubmitAnswer(item, answer) &&
       !mutation.isPending &&
-      !correct &&
+      !canAdvance &&
       !finished,
   };
 }

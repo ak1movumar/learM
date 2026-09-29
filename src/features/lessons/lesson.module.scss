@@ -178,3 +178,71 @@
     min-width: 0;
   }
 }
+
+.rule {
+  background: var(--color-primary-soft);
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+  padding: 1rem;
+  margin-top: 1.25rem;
+  summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--color-primary);
+  }
+  p {
+    margin-top: 1rem;
+    line-height: 1.8;
+    white-space: pre-wrap;
+  }
+}
+@keyframes questionEnter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes celebrate {
+  from {
+    transform: scale(0.85);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.exercise {
+  animation: questionEnter 180ms ease-out both;
+}
+.correct,
+.error {
+  animation: questionEnter 160ms ease-out both;
+}
+.complete > svg {
+  animation: celebrate 320ms ease-out both;
+}
+@media (max-width: 48rem) {
+  .controls {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    background: var(--color-surface);
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+  .exercise h1 {
+    font-size: clamp(1.35rem, 5vw, 1.8rem);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .exercise,
+  .correct,
+  .error,
+  .complete > svg {
+    animation: none;
+  }
+}

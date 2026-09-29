@@ -421,3 +421,34 @@
     padding: 1rem;
   }
 }
+
+.syncStatus {
+  display: block;
+  color: var(--color-muted);
+  font-size: 0.72rem;
+  margin-top: 0.25rem;
+}
+.jump {
+  display: flex;
+  justify-content: center;
+  padding: 0.4rem;
+  background: var(--color-surface);
+}
+@keyframes messageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.message {
+  animation: messageEnter 160ms ease-out both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .message {
+    animation: none;
+  }
+}

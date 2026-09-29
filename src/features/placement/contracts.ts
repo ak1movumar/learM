@@ -2,6 +2,7 @@ import { z } from 'zod';
 import type { components } from '@/types/api.generated';
 import { courseSchema } from '@/features/courses/catalog-api';
 import { lessonSchema, exerciseSchema } from '@/features/lessons/contracts';
+import { canSubmitAnswer } from '@/features/lessons/exercise-adapter';
 
 export const levelSchema = courseSchema.shape.level;
 export const learningPathSchema = z.object({
@@ -46,6 +47,11 @@ export function buildTestSubmission(
   return {
     answers: attempt.questions.map((question) => {
       const answer = answers[question.id];
+      if (
+        (question.type === 'choice' || question.type === 'match') &&
+        !canSubmitAnswer(question, answer)
+      )
+        throw new Error('Incomplete or invalid visual answer');
       if (
         answer === undefined ||
         answer === null ||

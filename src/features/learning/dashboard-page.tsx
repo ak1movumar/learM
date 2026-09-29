@@ -12,6 +12,7 @@ import {
   WeeklyActivity,
   RecentActivity,
 } from '@/features/progress/progress-widgets';
+import { DailyPlan } from './daily-plan';
 import { ContinueLearning } from './continue-learning';
 import { coursesOptions, languagesOptions, useProgress } from './queries';
 import { LearningShell } from './learning-shell';
@@ -33,7 +34,7 @@ export function DashboardPage() {
         title={t.welcome + (user ? ', ' + user.username : '') + '!'}
         description={t.dashboardHint}
         action={
-          <LinkButton href="/learning-path">
+          <LinkButton href="/learning-path" variant="secondary">
             {placementMessages[locale].title}
           </LinkButton>
         }
@@ -41,6 +42,7 @@ export function DashboardPage() {
       <div className={styles.dashboardLayout}>
         <div className={styles.dashboardMain}>
           <ContinueLearning />
+          {user && <DailyPlan key={user.id} userId={user.id} />}
           <Stats />
         </div>
         <aside className={styles.dashboardAside}>

@@ -8,8 +8,12 @@ import { Button } from '@/components/ui/button';
 import { Card, PageHeader, ProgressBar } from '@/components/ui/surface';
 import { LinkButton } from '@/components/ui/link-button';
 import { ConfirmDialog } from '@/components/ui/modal';
-import { TextExercise } from '@/features/lessons/text-exercise';
-import { exerciseCapabilities } from '@/features/lessons/exercise-adapter';
+import { ExerciseInput } from '@/features/lessons/exercise-input';
+import {
+  exerciseInput,
+  canSubmitAnswer,
+  type Answer,
+} from '@/features/lessons/exercise-adapter';
 import { getApiFailure } from '@/services/api/errors';
 import { sessionStore } from '@/features/auth/session';
 import { startTest, submitTest } from './api';
@@ -30,7 +34,7 @@ export function TestPage({
   const [attempt, setAttempt] = useState<TestStart | null>(null);
   const [result, setResult] = useState<TestResult | null>(null);
   const [index, setIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [answers, setAnswers] = useState<Record<number, Answer>>({});
   const [exit, setExit] = useState(false);
   const lock = useRef(false);
   const dirty = !!attempt && !result;
@@ -79,10 +83,12 @@ export function TestPage({
     },
   });
   const item = attempt?.questions[index];
-  const supported = item && exerciseCapabilities[item.type].input === 'text';
+  const supported = item && !!exerciseInput(item);
   const complete =
     !!attempt?.questions.length &&
-    attempt.questions.every((question) => !!answers[question.id]?.trim());
+    attempt.questions.every((question) =>
+      canSubmitAnswer(question, answers[question.id]),
+    );
   const busy = start.isPending || submit.isPending;
   return (
     <main id="main-content" className={styles.workspace}>
@@ -134,7 +140,9 @@ export function TestPage({
           <ProgressBar
             label={t.question}
             value={
-              (Object.values(answers).filter((value) => value.trim()).length /
+              (attempt.questions.filter((question) =>
+                canSubmitAnswer(question, answers[question.id]),
+              ).length /
                 attempt.questions.length) *
               100
             }
@@ -144,7 +152,9 @@ export function TestPage({
           </p>
           <h2>{item.question}</h2>
           {supported ? (
-            <TextExercise
+            <ExerciseInput
+              key={item.id}
+              task={item}
               answer={answers[item.id] ?? ''}
               disabled={busy}
               onChange={(value) => {
@@ -166,7 +176,7 @@ export function TestPage({
             </Button>
             {index < attempt.questions.length - 1 ? (
               <Button
-                disabled={!answers[item.id]?.trim() || busy}
+                disabled={!canSubmitAnswer(item, answers[item.id]) || busy}
                 onClick={() => setIndex(index + 1)}
               >
                 {t.next}

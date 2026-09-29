@@ -23,7 +23,7 @@ export function Reveal({
       '(prefers-reduced-motion: reduce)',
     ).matches;
     if (prefersReducedMotion) {
-      setVisible(true);
+      // The reduced-motion media query already makes the content visible.
       return;
     }
 

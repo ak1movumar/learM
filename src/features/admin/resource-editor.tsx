@@ -1,6 +1,7 @@
 'use client';
 import { useAuth } from '@/features/auth/auth-provider';
 import { useI18n } from '@/providers/i18n-provider';
+import { adminErrorMessage } from './errors';
 import { labels } from '@/i18n/management';
 import { Button } from '@/components/ui/button';
 import styles from './admin.module.scss';
@@ -8,19 +9,19 @@ import { Save } from 'lucide-react';
 import { adminCopy, resourceIcons } from './presentation';
 import { useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { api } from '@/services/api/client';
 import { sessionStore } from '@/features/auth/session';
 import { Input, Select, Textarea } from '@/components/ui/field';
 import { Modal, ConfirmDialog } from '@/components/ui/modal';
 import {
   resources,
-  resourcePath,
-  resourceItemPath,
+  saveResource,
   getResourceRows,
   type Resource,
 } from './resources';
 import fieldsData from './fields.json';
 import { buildPayload, type Field, type Row } from './model';
+import { ExerciseDraftPreview } from './exercise-draft-preview';
+import { languagePayload } from './language-payload';
 export function ResourceEditor({
   resource,
   parentTest,
@@ -32,7 +33,10 @@ export function ResourceEditor({
   row: Row | 'new';
   onClose: () => void;
 }) {
-  const { locale } = useI18n();
+  const {
+    locale,
+    messages: { account },
+  } = useI18n();
   const t = labels[locale];
   const copy = adminCopy[locale];
   const Icon = resourceIcons[resource];
@@ -70,6 +74,7 @@ export function ResourceEditor({
       }),
     ),
   );
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [invalid, setInvalid] = useState(false);
   const [discard, setDiscard] = useState(false);
   const [dirty, setDirty] = useState(false);
@@ -89,20 +94,7 @@ export function ResourceEditor({
   const mutation = useMutation({
     retry: false,
     mutationFn: async (payload: Record<string, unknown>) => {
-      const generation = sessionStore.getSnapshot().generation;
-      if (resource === 'users' && row !== 'new') {
-        if (payload.role !== row.role)
-          await api.patch('/users/' + row.id + '/role', { role: payload.role });
-        if (generation !== sessionStore.getSnapshot().generation)
-          throw new Error('Session changed');
-        if (payload.is_active !== row.is_active)
-          await api.patch('/users/' + row.id + '/active', {
-            is_active: payload.is_active,
-          });
-      } else if (row === 'new')
-        await api.post(resourcePath(resource, parentTest), payload);
-      else await api.put(resourceItemPath(resource, row.id), payload);
-      return generation;
+      return saveResource(resource, row, payload, parentTest);
     },
     onSuccess: async (generation) => {
       if (generation !== sessionStore.getSnapshot().generation) return;
@@ -133,7 +125,11 @@ export function ResourceEditor({
             if (lock.current) return;
             setInvalid(false);
             try {
-              const payload = buildPayload(fields, values, row !== 'new');
+              const rawPayload = buildPayload(fields, values, row !== 'new');
+              const payload =
+                resource === 'languages'
+                  ? languagePayload(rawPayload)
+                  : rawPayload;
               if (resource === 'level-tests') {
                 if (
                   payload.passing_score !== undefined &&
@@ -162,6 +158,9 @@ export function ResourceEditor({
               mutation.mutate(payload);
             } catch {
               setInvalid(true);
+              setTouched(
+                Object.fromEntries(fields.map((field) => [field.key, true])),
+              );
             }
           }}
         >
@@ -175,11 +174,49 @@ export function ResourceEditor({
             <details className={styles.hint}>
               <summary>{copy.format}</summary>
               <p>{t.jsonHint}</p>
+              {['choice', 'match'].includes(values.type ?? '') && (
+                <>
+                  <strong>{t.options}</strong>
+                  <pre
+                    style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}
+                  >
+                    {JSON.stringify(
+                      values.type === 'choice'
+                        ? { A: 'Яблоко', B: 'Груша' }
+                        : {
+                            left: { apple: 'apple', pear: 'pear' },
+                            right: { r1: 'груша', r2: 'яблоко' },
+                          },
+                      null,
+                      2,
+                    )}
+                  </pre>
+                  <strong>{t.correct_answer}</strong>
+                  <pre>
+                    {JSON.stringify(
+                      values.type === 'choice'
+                        ? 'A'
+                        : { apple: 'r2', pear: 'r1' },
+                      null,
+                      2,
+                    )}
+                  </pre>
+                </>
+              )}
             </details>
           )}
           {fields.map((field) => {
             const label = t[field.key as keyof typeof t] ?? field.key;
+            let fieldInvalid = false;
+            if (touched[field.key]) {
+              try {
+                buildPayload([field], values, row !== 'new');
+              } catch {
+                fieldInvalid = true;
+              }
+            }
             const common = {
+              error: fieldInvalid ? t.invalid : undefined,
               label: label + (field.required ? ' *' : ''),
               className: [
                 'description',
@@ -207,6 +244,7 @@ export function ResourceEditor({
                 >,
               ) => {
                 setDirty(true);
+                setTouched((current) => ({ ...current, [field.key]: true }));
                 setValues({ ...values, [field.key]: event.target.value });
               },
             };
@@ -220,6 +258,15 @@ export function ResourceEditor({
                         ? t.loading
                         : t.choose}
                   </option>
+                  {row !== 'new' &&
+                    values[field.key] &&
+                    !parents.data?.some(
+                      (item) => String(item.id) === values[field.key],
+                    ) && (
+                      <option value={values[field.key]}>
+                        #{values[field.key]}
+                      </option>
+                    )}
                   {parents.data?.map((item) => (
                     <option key={item.id} value={item.id}>
                       {String(item.name ?? item.title ?? item.id)} (#{item.id})
@@ -251,6 +298,15 @@ export function ResourceEditor({
               <Input
                 key={field.key}
                 {...common}
+                placeholder={
+                  resource === 'languages'
+                    ? field.key === 'code'
+                      ? 'ru / ky / en'
+                      : field.key === 'name'
+                        ? 'Русский / Кыргызча / English'
+                        : undefined
+                    : undefined
+                }
                 type={
                   field.type === 'integer'
                     ? 'number'
@@ -262,9 +318,15 @@ export function ResourceEditor({
               />
             );
           })}
+          {(resource === 'exercises' || resource === 'test-questions') && (
+            <ExerciseDraftPreview
+              key={[values.type, values.options, values.question].join('|')}
+              values={values}
+            />
+          )}
           {(invalid || mutation.isError) && (
             <p role="alert" className={styles.error}>
-              {invalid ? t.invalid : t.error}
+              {invalid ? t.invalid : adminErrorMessage(mutation.error, locale)}
             </p>
           )}
           <div className={styles.editorActions}>
@@ -290,9 +352,9 @@ export function ResourceEditor({
       </Modal>
       <ConfirmDialog
         open={discard}
-        title={t.confirm}
-        description={t.cancel}
-        confirmLabel={t.cancel}
+        title={account.discardTitle}
+        description={account.discardBody}
+        confirmLabel={account.discard}
         onClose={() => setDiscard(false)}
         onConfirm={onClose}
       />

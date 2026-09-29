@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { ArrowUpRight, BookOpen, Check, LockKeyhole, Play } from 'lucide-react';
 import { useI18n } from '@/providers/i18n-provider';
+import { experienceCopy } from '@/i18n/experience';
 import { placementMessages } from '@/i18n/placement';
 import { Card, Badge, ProgressBar } from '@/components/ui/surface';
 import { LinkButton } from '@/components/ui/link-button';
@@ -69,6 +70,9 @@ export function LearningJourney({
                     </small>
                   </div>
                 )}
+                {!course.is_unlocked && (
+                  <p>{placementCompleted ? t.completionHint : t.needed}</p>
+                )}
                 {course.is_unlocked ? (
                   <LinkButton href={'/courses/' + course.id}>
                     {t.open}
@@ -97,7 +101,10 @@ export function LearningJourney({
                         .map((lesson) => (
                           <li key={lesson.id}>
                             {lesson.is_locked ? (
-                              <span aria-disabled="true">
+                              <span
+                                aria-disabled="true"
+                                title={experienceCopy[locale].locked}
+                              >
                                 <LockKeyhole size={16} />
                                 {lesson.title}
                               </span>

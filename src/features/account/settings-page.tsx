@@ -17,6 +17,7 @@ import { ThemeSwitcher, LanguageSwitcher } from '@/components/ui/preferences';
 import { PasswordForm } from './password-form';
 import { DeleteAccount } from './delete-account';
 import styles from './account.module.scss';
+import { InstallCard } from '@/components/pwa/install-card';
 export function SettingsPage() {
   const { user } = useAuth();
   const {
@@ -31,6 +32,7 @@ export function SettingsPage() {
         description={t.settingsHint}
       />
       <div className={styles.settingsGrid}>
+        <InstallCard />
         <Card className={styles.section}>
           <h2>
             <UserRound size={21} />

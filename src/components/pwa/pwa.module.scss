@@ -1,0 +1,53 @@
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  background: #fff;
+  color: #0c1020;
+  pointer-events: none;
+  animation: disappear 180ms ease 900ms forwards;
+  :global(html[data-theme='dark']) & {
+    background: #0c1020;
+    color: #fff;
+  }
+}
+.brand {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+}
+.name {
+  font-size: 42px;
+  font-weight: 800;
+  letter-spacing: -2px;
+  span {
+    color: #328ed9;
+  }
+}
+.community {
+  position: absolute;
+  bottom: max(28px, env(safe-area-inset-bottom));
+  border-radius: 16px;
+  object-fit: cover;
+}
+.install {
+  display: grid;
+  gap: 16px;
+  h2,
+  p {
+    margin: 0;
+  }
+}
+@keyframes disappear {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .splash {
+    animation-duration: 1ms;
+  }
+}

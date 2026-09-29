@@ -30,6 +30,16 @@ export const metadata: Metadata = {
     'Learn languages with interactive lessons, exercises, challenges, achievements, progress tracking and a global community.',
 
   applicationName: 'LearM',
+  manifest: '/manifest.webmanifest',
+  appleWebApp: { capable: true, title: 'LearM', statusBarStyle: 'default' },
+  icons: {
+    icon: [
+      { url: '/pwa/favicon-32.png', type: 'image/png', sizes: '32x32' },
+      { url: '/icon.svg?v=2', type: 'image/svg+xml' },
+    ],
+    shortcut: '/pwa/favicon-32.png',
+    apple: '/pwa/apple-touch-icon.png',
+  },
 
   keywords: [
     'LearM',

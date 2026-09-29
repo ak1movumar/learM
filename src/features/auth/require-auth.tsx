@@ -10,6 +10,7 @@ import { sessionStore } from './session';
 import { authErrorMessage } from './errors';
 import { safeAuthRedirect } from './redirect';
 import styles from './auth.module.scss';
+import { needsOnboarding } from '@/features/onboarding/storage';
 export function RequireAuth({ children }: { children: ReactNode }) {
   const { ready, hasSession, me, user } = useAuth();
   const router = useRouter();
@@ -23,6 +24,14 @@ export function RequireAuth({ children }: { children: ReactNode }) {
     if (ready && !hasSession)
       router.replace('/login?next=' + encodeURIComponent(destination));
   }, [ready, hasSession, router, destination]);
+  useEffect(() => {
+    if (
+      user?.is_active &&
+      pathname !== '/onboarding' &&
+      needsOnboarding(user.id)
+    )
+      router.replace('/onboarding');
+  }, [user, pathname, router]);
   if (!ready || !hasSession || me.isPending)
     return (
       <main

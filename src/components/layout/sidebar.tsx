@@ -42,7 +42,7 @@ export function Sidebar({
         </IconButton>
       </div>
       <nav aria-label={nav.navigation} className={styles.navigation}>
-        {(['learning', 'connect', 'account'] as const).map((group) => (
+        {(['learning', 'connect', 'account'] as const).map((group, index) => (
           <div className={styles.navGroup} key={group}>
             <p className={styles.groupLabel}>{nav[group]}</p>
             {navigation
@@ -51,6 +51,7 @@ export function Sidebar({
                 <Link
                   key={key}
                   href={href}
+                  data-tone={index}
                   title={nav[key]}
                   aria-label={nav[key]}
                   aria-current={
@@ -67,8 +68,10 @@ export function Sidebar({
                     }
                   }}
                 >
-                  <Icon size={19} strokeWidth={1.8} />
-                  <span>{nav[key]}</span>
+                  <span className={styles.navIcon} aria-hidden="true">
+                    <Icon size={19} strokeWidth={1.75} />
+                  </span>
+                  <span className={styles.navLabel}>{nav[key]}</span>
                   {key === active && <i aria-hidden="true" />}
                 </Link>
               ))}

@@ -6,6 +6,7 @@ import { createQueryClient } from '@/lib/query-client';
 import type { Locale } from '@/i18n/config';
 import { AuthProvider } from '@/features/auth/auth-provider';
 import { I18nProvider } from './i18n-provider';
+import { PwaProvider } from '@/components/pwa/pwa-provider';
 export function AppProviders({
   children,
   locale,
@@ -24,7 +25,9 @@ export function AppProviders({
     >
       <I18nProvider initialLocale={locale}>
         <QueryClientProvider client={queryClient}>
-          <AuthProvider>{children}</AuthProvider>
+          <PwaProvider>
+            <AuthProvider>{children}</AuthProvider>
+          </PwaProvider>
         </QueryClientProvider>
       </I18nProvider>
     </ThemeProvider>

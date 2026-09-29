@@ -8,6 +8,7 @@ import { LanguageSwitcher, ThemeSwitcher } from '@/components/ui/preferences';
 import { Sidebar } from './sidebar';
 import { MobileBottomNav } from './mobile-bottom-nav';
 import { Header } from './header';
+import { useSidebarCollapsed } from '@/hooks/use-sidebar-collapsed';
 import { communityCopy } from '@/features/landing/community-copy';
 import { navigation, type NavigationKey } from './navigation';
 import styles from './layout.module.scss';
@@ -28,7 +29,7 @@ export function AppShell({
   identity?: { name: string; description: string };
   action?: ReactNode;
 }) {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useSidebarCollapsed();
   const [menu, setMenu] = useState(false);
   const [preferences, setPreferences] = useState(false);
   const {

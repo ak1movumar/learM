@@ -1,7 +1,8 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, UsersRound } from 'lucide-react';
+import { experienceCopy } from '@/i18n/experience';
+import { ArrowDown, ArrowLeft, UsersRound } from 'lucide-react';
 import { useAuth } from '@/features/auth/auth-provider';
 import { useI18n } from '@/providers/i18n-provider';
 import { LinkButton } from '@/components/ui/link-button';
@@ -28,6 +29,8 @@ export function Conversation({ id }: { id: string }) {
     locale,
   } = useI18n();
   const [info, setInfo] = useState(false);
+  const [away, setAway] = useState(false);
+  const [seenId, setSeenId] = useState<string | undefined>();
   const [limit, setLimit] = useState(50);
   const viewport = useRef<HTMLDivElement>(null);
   const stick = useRef(true);
@@ -58,6 +61,15 @@ export function Conversation({ id }: { id: string }) {
         <div>
           <h1>{title}</h1>
           <span>{chat.data ? t[chat.data.type] : t.loading}</span>
+          <small className={styles.syncStatus}>
+            {messages.fetchStatus === 'paused'
+              ? experienceCopy[locale].paused
+              : messages.isError
+                ? t.refreshError
+                : messages.isFetching
+                  ? experienceCopy[locale].syncing
+                  : experienceCopy[locale].ready}
+          </small>
         </div>
         <IconButton
           label={t.members}
@@ -89,6 +101,8 @@ export function Conversation({ id }: { id: string }) {
               const el = event.currentTarget;
               stick.current =
                 el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+              setAway(!stick.current);
+              if (stick.current) setSeenId(lastId);
             }}
           >
             {items.length > limit && (
@@ -129,6 +143,24 @@ export function Conversation({ id }: { id: string }) {
               );
             })}
           </div>
+          {away && (
+            <div className={styles.jump}>
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  stick.current = true;
+                  setAway(false);
+                  setSeenId(lastId);
+                  if (viewport.current)
+                    viewport.current.scrollTop = viewport.current.scrollHeight;
+                }}
+              >
+                <ArrowDown size={16} />
+                {experienceCopy[locale].down}
+                {lastId !== seenId && <span aria-hidden="true"> � </span>}
+              </Button>
+            </div>
+          )}
           <Composer
             chat={id}
             onSent={() => {
