@@ -1,4 +1,4 @@
-// REST fallback until the backend publishes a WebSocket URL/auth/event contract.
+// REST remains a fallback even when optional WebSocket notifications are enabled.
 export const liveChatOptions = {
   staleTime: 0,
   refetchOnMount: 'always',

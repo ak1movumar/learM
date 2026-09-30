@@ -104,18 +104,17 @@ export function PwaProvider({ children }: { children: ReactNode }) {
               priority
               unoptimized
             />
-            <div className={styles.name}>
-              Lear<span>M</span>
-            </div>
+            <div className={styles.name}>LearM</div>
           </div>
-          <Image
+          <h2> Motion Community</h2>
+          {/* <Image
             className={styles.community}
             src="/community-logo.jpg"
             alt=""
             width={100}
             height={100}
             priority
-          />
+          /> */}
         </div>
       )}
     </InstallContext.Provider>
